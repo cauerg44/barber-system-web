@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS tb_payments (
+    id SERIAL PRIMARY KEY,
+    method VARCHAR(100) NOT NULL
+);
