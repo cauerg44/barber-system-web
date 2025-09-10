@@ -1,4 +1,8 @@
 package br.com.barber.system.web.service.exceptions;
 
-public class ResourceNotFoundException {
+public class ResourceNotFoundException extends RuntimeException {
+
+    public ResourceNotFoundException(String msg) {
+        super(msg);
+    }
 }

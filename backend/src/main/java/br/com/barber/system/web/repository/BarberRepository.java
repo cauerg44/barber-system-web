@@ -1,7 +1,7 @@
 package br.com.barber.system.web.repository;
 
-import br.com.barber.system.web.entity.ServiceItemEntity;
+import br.com.barber.system.web.entity.BarberEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ServiceItemRepository extends JpaRepository<ServiceItemEntity, Long> {
+public interface BarberRepository extends JpaRepository<BarberEntity, Long> {
 }
