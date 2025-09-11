@@ -12,14 +12,14 @@ public class PaymentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String method;
 
     public PaymentEntity() {
     }
 
-    public PaymentEntity(Long id, String name) {
+    public PaymentEntity(Long id, String method) {
         this.id = id;
-        this.name = name;
+        this.method = method;
     }
 
     public Long getId() {
@@ -30,12 +30,12 @@ public class PaymentEntity {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getMethod() {
+        return method;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMethod(String method) {
+        this.method = method;
     }
 
     @Override
