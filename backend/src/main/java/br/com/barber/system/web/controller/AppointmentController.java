@@ -2,6 +2,7 @@ package br.com.barber.system.web.controller;
 
 import br.com.barber.system.web.dto.request.AppointmentRequestToCreate;
 import br.com.barber.system.web.dto.response.AppointmentResponse;
+import br.com.barber.system.web.entity.enums.AppointmentStatus;
 import br.com.barber.system.web.service.AppointmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,26 @@ public class AppointmentController {
     public ResponseEntity<List<AppointmentResponse>> getAllAppointments() {
         var list = service.findAll();
         return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/scheduled")
+    public ResponseEntity<List<AppointmentResponse>> getScheduled() {
+        return ResponseEntity.ok(service.findByStatus(AppointmentStatus.AGENDADO));
+    }
+
+    @GetMapping("/waiting")
+    public ResponseEntity<List<AppointmentResponse>> getWaiting() {
+        return ResponseEntity.ok(service.findByStatus(AppointmentStatus.AGUARDANDO));
+    }
+
+    @GetMapping("/in-attendence")
+    public ResponseEntity<List<AppointmentResponse>> getInAttendence() {
+        return ResponseEntity.ok(service.findByStatus(AppointmentStatus.EM_ATENDIMENTO));
+    }
+
+    @GetMapping("/finished")
+    public ResponseEntity<List<AppointmentResponse>> getFinished() {
+        return ResponseEntity.ok(service.findByStatus(AppointmentStatus.FINALIZADO));
     }
 
     @PostMapping(value = "/register")

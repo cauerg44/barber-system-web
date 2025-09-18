@@ -15,6 +15,7 @@ import br.com.barber.system.web.service.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -38,12 +39,21 @@ public class AppointmentService {
         return list.stream().map(entity -> new AppointmentResponse(entity)).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> findByStatus(AppointmentStatus status) {
+        return repository.findByStatusNative(status.name()).stream()
+                .map(entity -> new AppointmentResponse(entity))
+                .toList();
+    }
+
     @Transactional
     public AppointmentResponse saveNew(AppointmentRequestToCreate request) {
         AppointmentEntity entity = new AppointmentEntity();
         requestToCreate(request, entity);
 
         entity.setStatus(AppointmentStatus.AGUARDANDO);
+
+        entity.setAppointmentDate(LocalDate.now());
 
         entity = repository.save(entity);
         return new AppointmentResponse(entity);
