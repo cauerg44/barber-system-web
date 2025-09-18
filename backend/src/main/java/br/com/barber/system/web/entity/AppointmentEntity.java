@@ -4,6 +4,7 @@ import br.com.barber.system.web.entity.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -14,17 +15,18 @@ public class AppointmentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "client_name")
+    @Column(name = "client_name", nullable = false)
     private String clientName;
 
     @ManyToOne
-    @JoinColumn(name = "barber_id")
+    @JoinColumn(name = "barber_id", nullable = false)
     private BarberEntity barber;
 
     @Enumerated(EnumType.STRING)
-    private AppointmentStatus status;
+    @Column(nullable = false)
+    private AppointmentStatus status = AppointmentStatus.AGUARDANDO;
 
-    @Column(name = "appointment_date")
+    @Column(name = "appointment_date", nullable = false)
     private LocalDate appointmentDate;
 
     @OneToOne
@@ -37,9 +39,9 @@ public class AppointmentEntity {
             joinColumns = @JoinColumn(name = "appointment_id"),
             inverseJoinColumns = @JoinColumn(name = "service_id")
     )
-    private Set<ServiceItemEntity> services;
+    private Set<ServiceItemEntity> services = new HashSet<>();
 
-    @Column(name = "total_price")
+    @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
     public AppointmentEntity() {
@@ -108,10 +110,18 @@ public class AppointmentEntity {
 
     public void addService(ServiceItemEntity serviceItem) {
         this.services.add(serviceItem);
+        recalcTotalPrice();
     }
 
     public void removeService(ServiceItemEntity serviceItem) {
         this.services.remove(serviceItem);
+        recalcTotalPrice();
+    }
+
+    private void recalcTotalPrice() {
+        this.totalPrice = services.stream()
+                .map(ServiceItemEntity::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public BigDecimal getTotalPrice() {
