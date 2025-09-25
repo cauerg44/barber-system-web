@@ -73,31 +73,16 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentResponse update(Long id, AppointmentRequestToUpdate request) {
+    public AppointmentResponse updateAppointment(Long id, AppointmentRequestToUpdate request) {
         AppointmentEntity entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Atendimento não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado"));
 
-        switch (entity.getStatus()) {
-            case AGENDADO -> updateWhenStatusIsScheduled(entity, request);
-            case AGUARDANDO -> updateWhenStatusIsWaiting(entity, request);
-            case EM_ATENDIMENTO -> updateWhenStatusIsInProgress(entity, request);
-            case FINALIZADO -> throw new IllegalStateException("Atendimento finalizado não pode ser atualizado.");
-        }
+        entity.setClientName(request.clientName());
+        entity.setBarber(findBarber(request.barberId()));
+        entity.setPayment(findPayment(request.paymentId()));
 
-        repository.save(entity);
-        return new AppointmentResponse(entity);
-    }
-
-    @Transactional
-    public AppointmentResponse updateStatus(Long id) {
-        AppointmentEntity entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Atendimento não encontrado"));
-
-        switch (entity.getStatus()) {
-            case AGENDADO, AGUARDANDO -> entity.setStatus(AppointmentStatus.EM_ATENDIMENTO);
-            case EM_ATENDIMENTO -> entity.setStatus(AppointmentStatus.FINALIZADO);
-            case FINALIZADO -> throw new IllegalStateException("Atendimento já finalizado.");
-        }
+        updateServicesByStatus(entity, request.servicesIds());
+        updateStatusByRules(entity, request.status());
 
         repository.save(entity);
         return new AppointmentResponse(entity);
@@ -125,41 +110,64 @@ public class AppointmentService {
         entity.setPayment(payment);
     }
 
-    private void updateWhenStatusIsScheduled(AppointmentEntity entity, AppointmentRequestToUpdate request) {
+    private void fillEntityFromCreateRequest(AppointmentEntity entity, AppointmentRequestToCreate request) {
         entity.setClientName(request.clientName());
-        entity.setAppointmentDate(request.appointmentDate());
-        entity.setBarber(barberRepository.findById(request.barberId())
-                .orElseThrow(() -> new ResourceNotFoundException("Barbeiro não encontrado")));
-        entity.setPayment(paymentRepository.findById(request.paymentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Forma de pagamento não encontrada")));
+        entity.setBarber(findBarber(request.barberId()));
+        entity.setPayment(findPayment(request.paymentId()));
 
-        refreshServices(entity, request.servicesIds());
+        if (request.servicesIds() != null) {
+            request.servicesIds().forEach(sid -> entity.addService(findService(sid)));
+        }
     }
 
-    private void updateWhenStatusIsWaiting(AppointmentEntity entity, AppointmentRequestToUpdate request) {
-        entity.setClientName(request.clientName());
-        entity.setBarber(barberRepository.findById(request.barberId())
-                .orElseThrow(() -> new ResourceNotFoundException("Barbeiro não encontrado")));
-        entity.setPayment(paymentRepository.findById(request.paymentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Forma de pagamento não encontrada")));
-
-        refreshServices(entity, request.servicesIds());
+    private BarberEntity findBarber(Long id) {
+        return barberRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Barbeiro não encontrado"));
     }
 
-    private void updateWhenStatusIsInProgress(AppointmentEntity entity, AppointmentRequestToUpdate request) {
-        request.servicesIds().forEach(serviceId -> {
-            ServiceItemEntity service = serviceRepository.findById(serviceId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
-            entity.addService(service);
-        });
+    private PaymentEntity findPayment(Long id) {
+        return paymentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado"));
     }
 
-    private void refreshServices(AppointmentEntity entity, Set<Long> servicesIds) {
+    private ServiceItemEntity findService(Long id) {
+        return serviceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
+    }
+
+    private void updateServicesByStatus(AppointmentEntity entity, Set<Long> servicesIds) {
+        if (entity.getStatus() == AppointmentStatus.FINALIZADO) return;
+
+        if (entity.getStatus() == AppointmentStatus.EM_ATENDIMENTO) {
+            servicesIds.forEach(sid -> {
+                boolean exists = entity.getServices().stream().anyMatch(s -> s.getId().equals(sid));
+                if (!exists) entity.addService(findService(sid));
+            });
+            return;
+        }
+
         entity.getServices().clear();
-        servicesIds.forEach(serviceId -> {
-            ServiceItemEntity service = serviceRepository.findById(serviceId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
-            entity.addService(service);
-        });
+        servicesIds.forEach(sid -> entity.addService(findService(sid)));
+    }
+
+    private void updateStatusByRules(AppointmentEntity entity, AppointmentStatus requestedStatus) {
+        if (requestedStatus == null || requestedStatus == entity.getStatus()) return;
+
+        switch (entity.getStatus()) {
+            case AGENDADO, AGUARDANDO -> {
+                if (requestedStatus == AppointmentStatus.EM_ATENDIMENTO)
+                    entity.setStatus(requestedStatus);
+                else
+                    throw new IllegalStateException("Agendamento só pode ir para EM_ATENDIMENTO");
+            }
+            case EM_ATENDIMENTO -> {
+                if (requestedStatus == AppointmentStatus.FINALIZADO)
+                    entity.setStatus(requestedStatus);
+            }
+            case FINALIZADO -> {
+                if (requestedStatus != AppointmentStatus.FINALIZADO)
+                    throw new IllegalStateException("Agendamento finalizado não pode alterar status");
+            }
+        }
     }
 }
