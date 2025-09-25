@@ -75,7 +75,7 @@ public class AppointmentService {
     @Transactional
     public AppointmentResponse updateAppointment(Long id, AppointmentRequestToUpdate request) {
         AppointmentEntity entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Atendimento não encontrado"));
 
         entity.setClientName(request.clientName());
         entity.setBarber(findBarber(request.barberId()));
@@ -86,6 +86,18 @@ public class AppointmentService {
 
         repository.save(entity);
         return new AppointmentResponse(entity);
+    }
+
+    @Transactional
+    public void deleteAppointment(Long id) {
+        AppointmentEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado"));
+
+        if (entity.getStatus() == AppointmentStatus.AGENDADO || entity.getStatus() == AppointmentStatus.AGUARDANDO) {
+            repository.delete(entity);
+        }
+        else
+            throw new IllegalStateException("Atendimentos em andamento ou finalizados não podem ser removidos");
     }
 
     private void requestToCreate(AppointmentRequestToCreate request, AppointmentEntity entity) {

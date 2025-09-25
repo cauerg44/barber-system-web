@@ -64,9 +64,15 @@ public class AppointmentController {
         return ResponseEntity.created(uri).body(response);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}")
     public ResponseEntity<AppointmentResponse> updateAppointment(@PathVariable Long id, @RequestBody AppointmentRequestToUpdate request) {
         AppointmentResponse response = service.updateAppointment(id, request);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
+        service.deleteAppointment(id);
+        return ResponseEntity.noContent().build();
     }
 }
