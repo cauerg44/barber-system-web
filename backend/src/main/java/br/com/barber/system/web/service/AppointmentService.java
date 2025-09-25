@@ -1,6 +1,7 @@
 package br.com.barber.system.web.service;
 
 import br.com.barber.system.web.dto.request.AppointmentRequestToCreate;
+import br.com.barber.system.web.dto.request.AppointmentRequestToUpdate;
 import br.com.barber.system.web.dto.response.AppointmentResponse;
 import br.com.barber.system.web.entity.AppointmentEntity;
 import br.com.barber.system.web.entity.BarberEntity;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class AppointmentService {
@@ -70,6 +72,37 @@ public class AppointmentService {
         return new AppointmentResponse(entity);
     }
 
+    @Transactional
+    public AppointmentResponse update(Long id, AppointmentRequestToUpdate request) {
+        AppointmentEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Atendimento não encontrado"));
+
+        switch (entity.getStatus()) {
+            case AGENDADO -> updateWhenStatusIsScheduled(entity, request);
+            case AGUARDANDO -> updateWhenStatusIsWaiting(entity, request);
+            case EM_ATENDIMENTO -> updateWhenStatusIsInProgress(entity, request);
+            case FINALIZADO -> throw new IllegalStateException("Atendimento finalizado não pode ser atualizado.");
+        }
+
+        repository.save(entity);
+        return new AppointmentResponse(entity);
+    }
+
+    @Transactional
+    public AppointmentResponse updateStatus(Long id) {
+        AppointmentEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Atendimento não encontrado"));
+
+        switch (entity.getStatus()) {
+            case AGENDADO, AGUARDANDO -> entity.setStatus(AppointmentStatus.EM_ATENDIMENTO);
+            case EM_ATENDIMENTO -> entity.setStatus(AppointmentStatus.FINALIZADO);
+            case FINALIZADO -> throw new IllegalStateException("Atendimento já finalizado.");
+        }
+
+        repository.save(entity);
+        return new AppointmentResponse(entity);
+    }
+
     private void requestToCreate(AppointmentRequestToCreate request, AppointmentEntity entity) {
         BarberEntity barber = barberRepository.findById(request.barberId())
                 .orElseThrow(() -> new ResourceNotFoundException("Barbeiro não encontrado"));
@@ -90,5 +123,43 @@ public class AppointmentService {
         }
 
         entity.setPayment(payment);
+    }
+
+    private void updateWhenStatusIsScheduled(AppointmentEntity entity, AppointmentRequestToUpdate request) {
+        entity.setClientName(request.clientName());
+        entity.setAppointmentDate(request.appointmentDate());
+        entity.setBarber(barberRepository.findById(request.barberId())
+                .orElseThrow(() -> new ResourceNotFoundException("Barbeiro não encontrado")));
+        entity.setPayment(paymentRepository.findById(request.paymentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Forma de pagamento não encontrada")));
+
+        refreshServices(entity, request.servicesIds());
+    }
+
+    private void updateWhenStatusIsWaiting(AppointmentEntity entity, AppointmentRequestToUpdate request) {
+        entity.setClientName(request.clientName());
+        entity.setBarber(barberRepository.findById(request.barberId())
+                .orElseThrow(() -> new ResourceNotFoundException("Barbeiro não encontrado")));
+        entity.setPayment(paymentRepository.findById(request.paymentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Forma de pagamento não encontrada")));
+
+        refreshServices(entity, request.servicesIds());
+    }
+
+    private void updateWhenStatusIsInProgress(AppointmentEntity entity, AppointmentRequestToUpdate request) {
+        request.servicesIds().forEach(serviceId -> {
+            ServiceItemEntity service = serviceRepository.findById(serviceId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
+            entity.addService(service);
+        });
+    }
+
+    private void refreshServices(AppointmentEntity entity, Set<Long> servicesIds) {
+        entity.getServices().clear();
+        servicesIds.forEach(serviceId -> {
+            ServiceItemEntity service = serviceRepository.findById(serviceId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
+            entity.addService(service);
+        });
     }
 }

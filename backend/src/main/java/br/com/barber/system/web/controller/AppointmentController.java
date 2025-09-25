@@ -1,9 +1,11 @@
 package br.com.barber.system.web.controller;
 
 import br.com.barber.system.web.dto.request.AppointmentRequestToCreate;
+import br.com.barber.system.web.dto.request.AppointmentRequestToUpdate;
 import br.com.barber.system.web.dto.response.AppointmentResponse;
 import br.com.barber.system.web.entity.enums.AppointmentStatus;
 import br.com.barber.system.web.service.AppointmentService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -48,7 +50,7 @@ public class AppointmentController {
     }
 
     @PostMapping(value = "/register")
-    public ResponseEntity<AppointmentResponse> registerNewAppointment(@RequestBody AppointmentRequestToCreate request) {
+    public ResponseEntity<AppointmentResponse> registerNewAppointment(@RequestBody @Valid AppointmentRequestToCreate request) {
         AppointmentResponse response = service.saveNew(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(response.id()).toUri();
@@ -56,10 +58,22 @@ public class AppointmentController {
     }
 
     @PostMapping(value = "/schedule")
-    public ResponseEntity<AppointmentResponse> scheduleAppointment(@RequestBody AppointmentRequestToCreate request) {
+    public ResponseEntity<AppointmentResponse> scheduleAppointment(@RequestBody @Valid AppointmentRequestToCreate request) {
         AppointmentResponse response = service.schedule(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(uri).body(response);
+    }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<AppointmentResponse> update(@PathVariable Long id, @RequestBody @Valid AppointmentRequestToUpdate request) {
+        var response = service.update(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping(value = "/{id}/status")
+    public ResponseEntity<AppointmentResponse> updateStatus(@PathVariable Long id) {
+        var response = service.updateStatus(id);
+        return ResponseEntity.ok(response);
     }
 }
