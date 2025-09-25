@@ -1,6 +1,7 @@
 package br.com.barber.system.web.controller;
 
 import br.com.barber.system.web.dto.request.AppointmentRequestToCreate;
+import br.com.barber.system.web.dto.request.AppointmentRequestToUpdate;
 import br.com.barber.system.web.dto.response.AppointmentResponse;
 import br.com.barber.system.web.entity.enums.AppointmentStatus;
 import br.com.barber.system.web.service.AppointmentService;
@@ -61,5 +62,11 @@ public class AppointmentController {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(uri).body(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AppointmentResponse> updateAppointment(@PathVariable Long id, @RequestBody AppointmentRequestToUpdate request) {
+        AppointmentResponse response = service.updateAppointment(id, request);
+        return ResponseEntity.ok(response);
     }
 }
