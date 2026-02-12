@@ -26,11 +26,11 @@ public class ClientService {
     }
 
     @Transactional(readOnly = true)
-    public List<ClientResponseDTO> findAll(Sort name) {
-        List<Client> list = repository.findAll();
+    public List<ClientResponseDTO> findAll() {
+        List<Client> list = repository.findAll(Sort.by("name"));
         return list.stream()
-                .map(client -> new ClientResponseDTO(
-                        client.getId(), client.getName(), client.getPhone())).toList();
+                .map(client -> new ClientResponseDTO(client.getId(), client.getName(), client.getPhone()))
+                .toList();
     }
 
     @Transactional(readOnly = true)

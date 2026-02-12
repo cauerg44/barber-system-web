@@ -24,15 +24,15 @@ public class BarberService {
     public List<BarberResponseDTO> findAll(Sort name) {
         List<Barber> list = repository.findAll();
         return list.stream()
-                .map(Barber -> new BarberResponseDTO(
-                        Barber.getId(), Barber.getName(), Barber.getActive())).toList();
+                .map(Barber -> new BarberResponseDTO(Barber.getId(), Barber.getName(), Barber.getActive()))
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public BarberResponseDTO findById(Long id) {
-        Barber Barber = repository.findById(id)
+        Barber barber = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
-        return new BarberResponseDTO(Barber.getId(), Barber.getName(), Barber.getActive());
+        return new BarberResponseDTO(barber.getId(), barber.getName(), barber.getActive());
     }
 
     @Transactional

@@ -25,7 +25,7 @@ public class ClientController {
 
     @GetMapping
     public ResponseEntity<List<ClientResponseDTO>> allClients() {
-        var list = service.findAll(Sort.by("name"));
+        var list = service.findAll();
         return ResponseEntity.ok(list);
     }
 
