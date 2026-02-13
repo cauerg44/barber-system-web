@@ -87,4 +87,10 @@ public class ClientService {
             entity.setPhone(dto.phone());
         }
     }
+
+    protected Client getEntityById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
+    }
+
 }

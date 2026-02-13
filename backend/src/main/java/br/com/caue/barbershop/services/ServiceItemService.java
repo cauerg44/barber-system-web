@@ -33,4 +33,16 @@ public class ServiceItemService {
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found"));
         return new ServiceItemResponseDTO(serviceItem.getId(), serviceItem.getName(), serviceItem.getBasePrice());
     }
+
+    @Transactional(readOnly = true)
+    protected List<ServiceItem> findAllByIds(List<Long> ids) {
+        List<ServiceItem> services = repository.findAllById(ids);
+
+        if (services.size() != ids.size()) {
+            throw new ResourceNotFoundException("One or more services not found");
+        }
+
+        return services;
+    }
+
 }

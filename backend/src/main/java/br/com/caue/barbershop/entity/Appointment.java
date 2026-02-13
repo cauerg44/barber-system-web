@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -83,6 +84,22 @@ public class Appointment {
     public Set<ServiceItem> getServices() {
         return services;
     }
+
+    public void addService(ServiceItem serviceItem) {
+        services.add(serviceItem);
+    }
+
+    public void removeService(ServiceItem serviceItem) {
+        services.remove(serviceItem);
+    }
+
+    public void addServices(Collection<ServiceItem> items) {
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("Services cannot be empty");
+        }
+        services.addAll(items);
+    }
+
 
     public BigDecimal getSubTotal() {
         return services.stream()

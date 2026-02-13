@@ -2,11 +2,13 @@ package br.com.caue.barbershop.controllers.handlers;
 
 import br.com.caue.barbershop.dto.CustomErrorDTO;
 import br.com.caue.barbershop.dto.ValidationErrorDTO;
+import br.com.caue.barbershop.services.exceptions.BusinessException;
 import br.com.caue.barbershop.services.exceptions.DatabaseException;
 import br.com.caue.barbershop.services.exceptions.ForbiddenException;
 import br.com.caue.barbershop.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -20,12 +22,12 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<CustomErrorDTO> resourceNotFound(ResourceNotFoundException e, HttpServletRequest request) {
-        return buildErrorResponseFromException(e, HttpStatus.NOT_FOUND, request);
+        return buildErrorResponse(e, HttpStatus.NOT_FOUND, request);
     }
 
     @ExceptionHandler(DatabaseException.class)
     public ResponseEntity<CustomErrorDTO> database(DatabaseException e, HttpServletRequest request) {
-        return buildErrorResponseFromException(e, HttpStatus.BAD_REQUEST, request);
+        return buildErrorResponse(e, HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -40,10 +42,19 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<CustomErrorDTO> forbidden(ForbiddenException e, HttpServletRequest request) {
-        return buildErrorResponseFromException(e, HttpStatus.FORBIDDEN, request);
+        return buildErrorResponse(e, HttpStatus.FORBIDDEN, request);
     }
 
-    private ResponseEntity<CustomErrorDTO> buildErrorResponseFromException(RuntimeException e, HttpStatus status, HttpServletRequest request) {
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<CustomErrorDTO> business(BusinessException e, HttpServletRequest request) {
+        return buildErrorResponseFromMessage(
+                e.getMessage(),
+                (HttpStatus) HttpStatusCode.valueOf(422),
+                request
+        );
+    }
+
+    private ResponseEntity<CustomErrorDTO> buildErrorResponse(RuntimeException e, HttpStatus status, HttpServletRequest request) {
         return buildErrorResponseFromMessage(e.getMessage(), status, request);
     }
 

@@ -16,11 +16,8 @@ INSERT INTO tb_service (name, base_price) VALUES ('Corte Navalhado', 30.00);
 INSERT INTO tb_service (name, base_price) VALUES ('Sobrancelha', 10.00);
 INSERT INTO tb_service (name, base_price) VALUES ('Pezinho', 10.00);
 
--- Atendimento finalizado (encaixe)
 INSERT INTO tb_appointment (barber_id, client_id, date, status, type) VALUES (1, 1, '2026-02-10 14:00:00', 'COMPLETED', 'IN_WALK');
-
 INSERT INTO tb_appointment (barber_id, client_id, date, status, type) VALUES (2, 3, '2026-02-11 10:00:00', 'WAITING', 'SCHEDULED');
-
 INSERT INTO tb_appointment (barber_id, client_id, date, status, type) VALUES (3, 4, '2026-02-11 15:30:00', 'WAITING', 'SCHEDULED');
 
 INSERT INTO tb_appointment_service (appointment_id, service_id) VALUES (1, 1);

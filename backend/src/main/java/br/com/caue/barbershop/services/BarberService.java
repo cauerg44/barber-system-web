@@ -3,6 +3,7 @@ package br.com.caue.barbershop.services;
 import br.com.caue.barbershop.dto.response.BarberResponseDTO;
 import br.com.caue.barbershop.entity.Barber;
 import br.com.caue.barbershop.repository.BarberRepository;
+import br.com.caue.barbershop.services.exceptions.BusinessException;
 import br.com.caue.barbershop.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Sort;
@@ -57,5 +58,16 @@ public class BarberService {
         catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Resource not found.");
         }
+    }
+
+    protected Barber getEntityById(Long id) {
+        Barber barber = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
+
+        if (!barber.getActive()) {
+            throw new BusinessException("Barber is inactive and cannot receive appointments");
+        }
+
+        return barber;
     }
 }
