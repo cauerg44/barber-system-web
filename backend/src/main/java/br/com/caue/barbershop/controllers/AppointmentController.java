@@ -49,4 +49,22 @@ public class AppointmentController {
                 .buildAndExpand(appointmentInWalk.id()).toUri();
         return ResponseEntity.created(uri).body(appointmentInWalk);
     }
+
+    @PatchMapping("/{id}/start")
+    public ResponseEntity<AppointmentResponseDTO> start(@PathVariable Long id) {
+        var appointmentInitialized = service.start(id);
+        return ResponseEntity.ok(appointmentInitialized);
+    }
+
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<AppointmentResponseDTO> complete(@PathVariable Long id) {
+        var appointmentCompleted = service.complete(id);
+        return ResponseEntity.ok(appointmentCompleted);
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<AppointmentResponseDTO> cancel(@PathVariable Long id) {
+        var appointmentCancelled = service.cancel(id);
+        return ResponseEntity.ok(appointmentCancelled);
+    }
 }

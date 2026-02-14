@@ -85,4 +85,37 @@ public class AppointmentService {
 
         return AppointmentMapper.toDTO(appointment);
     }
+
+    @Transactional
+    public AppointmentResponseDTO start(Long id) {
+
+        Appointment appointment = findAppointment(id);
+        appointment.start();
+
+        return AppointmentMapper.toDTO(appointment);
+    }
+
+    @Transactional
+    public AppointmentResponseDTO complete(Long id) {
+
+        Appointment appointment = findAppointment(id);
+        appointment.complete();
+
+        return AppointmentMapper.toDTO(appointment);
+    }
+
+    @Transactional
+    public AppointmentResponseDTO cancel(Long id) {
+
+        Appointment appointment = findAppointment(id);
+        appointment.cancel();
+
+        return AppointmentMapper.toDTO(appointment);
+    }
+
+    private Appointment findAppointment(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Appointment not found"));
+    }
 }

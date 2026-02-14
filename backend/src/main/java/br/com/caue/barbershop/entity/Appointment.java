@@ -2,6 +2,7 @@ package br.com.caue.barbershop.entity;
 
 import br.com.caue.barbershop.entity.enums.AppointmentStatus;
 import br.com.caue.barbershop.entity.enums.AppointmentType;
+import br.com.caue.barbershop.services.exceptions.BusinessException;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -100,11 +101,31 @@ public class Appointment {
         services.addAll(items);
     }
 
-
     public BigDecimal getSubTotal() {
         return services.stream()
                 .map(ServiceItem::getBasePrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void start() {
+        if (this.status != AppointmentStatus.WAITING) {
+            throw new BusinessException("Only waiting appointments can be started");
+        }
+        this.status = AppointmentStatus.IN_PROGRESS;
+    }
+
+    public void complete() {
+        if (this.status != AppointmentStatus.IN_PROGRESS) {
+            throw new BusinessException("Only in-progress appointments can be completed");
+        }
+        this.status = AppointmentStatus.COMPLETED;
+    }
+
+    public void cancel() {
+        if (this.status == AppointmentStatus.COMPLETED) {
+            throw new BusinessException("Completed appointments cannot be cancelled");
+        }
+        this.status = AppointmentStatus.CANCELLED;
     }
 
     @Override
