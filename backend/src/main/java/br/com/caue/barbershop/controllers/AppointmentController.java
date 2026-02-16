@@ -50,19 +50,19 @@ public class AppointmentController {
         return ResponseEntity.created(uri).body(appointmentInWalk);
     }
 
-    @PatchMapping("/{id}/start")
+    @PatchMapping(value = "/{id}/start")
     public ResponseEntity<AppointmentResponseDTO> start(@PathVariable Long id) {
         var appointmentInitialized = service.start(id);
         return ResponseEntity.ok(appointmentInitialized);
     }
 
-    @PatchMapping("/{id}/complete")
+    @PatchMapping(value = "/{id}/complete")
     public ResponseEntity<AppointmentResponseDTO> complete(@PathVariable Long id) {
         var appointmentCompleted = service.complete(id);
         return ResponseEntity.ok(appointmentCompleted);
     }
 
-    @PatchMapping("/{id}/cancel")
+    @PatchMapping(value = "/{id}/cancel")
     public ResponseEntity<AppointmentResponseDTO> cancel(@PathVariable Long id) {
         var appointmentCancelled = service.cancel(id);
         return ResponseEntity.ok(appointmentCancelled);

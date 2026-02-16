@@ -2,6 +2,7 @@ package br.com.caue.barbershop.services;
 
 import br.com.caue.barbershop.dto.response.ServiceItemResponseDTO;
 import br.com.caue.barbershop.entity.ServiceItem;
+import br.com.caue.barbershop.mapper.ServiceItemMapper;
 import br.com.caue.barbershop.repository.ServiceItemRepository;
 import br.com.caue.barbershop.services.exceptions.ResourceNotFoundException;
 import org.springframework.data.domain.Sort;
@@ -23,15 +24,15 @@ public class ServiceItemService {
     public List<ServiceItemResponseDTO> findAll(Sort name) {
         List<ServiceItem> list = repository.findAll(Sort.by("name"));
         return list.stream()
-                .map(serviceItem -> new ServiceItemResponseDTO(serviceItem.getId(), serviceItem.getName(), serviceItem.getBasePrice()))
+                .map(entity -> ServiceItemMapper.toDTO(entity))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public ServiceItemResponseDTO findById(Long id) {
-        ServiceItem serviceItem = repository.findById(id)
+        ServiceItem entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found"));
-        return new ServiceItemResponseDTO(serviceItem.getId(), serviceItem.getName(), serviceItem.getBasePrice());
+        return ServiceItemMapper.toDTO(entity);
     }
 
     @Transactional(readOnly = true)

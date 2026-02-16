@@ -2,6 +2,7 @@ package br.com.caue.barbershop.services;
 
 import br.com.caue.barbershop.dto.response.BarberResponseDTO;
 import br.com.caue.barbershop.entity.Barber;
+import br.com.caue.barbershop.mapper.BarberMapper;
 import br.com.caue.barbershop.repository.BarberRepository;
 import br.com.caue.barbershop.services.exceptions.BusinessException;
 import br.com.caue.barbershop.services.exceptions.ResourceNotFoundException;
@@ -25,15 +26,15 @@ public class BarberService {
     public List<BarberResponseDTO> findAll(Sort name) {
         List<Barber> list = repository.findAll();
         return list.stream()
-                .map(Barber -> new BarberResponseDTO(Barber.getId(), Barber.getName(), Barber.getActive()))
+                .map(entity -> BarberMapper.toDTO(entity))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public BarberResponseDTO findById(Long id) {
-        Barber barber = repository.findById(id)
+        Barber entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Barber not found"));
-        return new BarberResponseDTO(barber.getId(), barber.getName(), barber.getActive());
+        return BarberMapper.toDTO(entity);
     }
 
     @Transactional
@@ -41,7 +42,7 @@ public class BarberService {
         try {
             Barber entity = repository.getReferenceById(id);
             entity.activate();
-            return new BarberResponseDTO(entity.getId(), entity.getName(), entity.getActive());
+            return BarberMapper.toDTO(entity);
         }
         catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Resource not found.");
@@ -53,7 +54,7 @@ public class BarberService {
         try {
             Barber entity = repository.getReferenceById(id);
             entity.deactivate();
-            return new BarberResponseDTO(entity.getId(), entity.getName(), entity.getActive());
+            return BarberMapper.toDTO(entity);
         }
         catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Resource not found.");

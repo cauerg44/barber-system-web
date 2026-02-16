@@ -4,6 +4,7 @@ import br.com.caue.barbershop.dto.request.ClientRequestSaveDTO;
 import br.com.caue.barbershop.dto.request.ClientRequestUpdateDTO;
 import br.com.caue.barbershop.dto.response.ClientResponseDTO;
 import br.com.caue.barbershop.entity.Client;
+import br.com.caue.barbershop.mapper.ClientMapper;
 import br.com.caue.barbershop.repository.ClientRepository;
 import br.com.caue.barbershop.services.exceptions.DatabaseException;
 import br.com.caue.barbershop.services.exceptions.ResourceNotFoundException;
@@ -29,15 +30,15 @@ public class ClientService {
     public List<ClientResponseDTO> findAll() {
         List<Client> list = repository.findAll(Sort.by("name"));
         return list.stream()
-                .map(client -> new ClientResponseDTO(client.getId(), client.getName(), client.getPhone()))
+                .map(entity -> ClientMapper.toDTO(entity))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public ClientResponseDTO findById(Long id) {
-        Client client = repository.findById(id)
+        Client entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
-        return new ClientResponseDTO(client.getId(), client.getName(), client.getPhone());
+        return ClientMapper.toDTO(entity);
     }
 
     @Transactional
@@ -45,7 +46,7 @@ public class ClientService {
         Client entity = new Client();
         saveDtoToEntity(request, entity);
         entity = repository.save(entity);
-        return new ClientResponseDTO(entity.getId(), entity.getName(), entity.getPhone());
+        return ClientMapper.toDTO(entity);
     }
 
     @Transactional
@@ -54,7 +55,7 @@ public class ClientService {
             Client entity = repository.getReferenceById(id);
             updateDtoToEntity(request, entity);
             entity = repository.save(entity);
-            return new ClientResponseDTO(entity.getId(), entity.getName(), entity.getPhone());
+            return ClientMapper.toDTO(entity);
         }
         catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Resource not found.");
