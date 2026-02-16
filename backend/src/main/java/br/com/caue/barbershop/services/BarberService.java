@@ -2,7 +2,7 @@ package br.com.caue.barbershop.services;
 
 import br.com.caue.barbershop.dto.response.BarberResponseDTO;
 import br.com.caue.barbershop.entity.Barber;
-import br.com.caue.barbershop.mapper.BarberMapper;
+import br.com.caue.barbershop.dto.mapper.BarberMapper;
 import br.com.caue.barbershop.repository.BarberRepository;
 import br.com.caue.barbershop.services.exceptions.BusinessException;
 import br.com.caue.barbershop.services.exceptions.ResourceNotFoundException;

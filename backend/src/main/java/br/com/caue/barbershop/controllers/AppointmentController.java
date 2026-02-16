@@ -45,8 +45,13 @@ public class AppointmentController {
     @PostMapping(value = "/in-walk")
     public ResponseEntity<AppointmentResponseDTO> createWalkIn(@RequestBody @Valid AppointmentWalkInRequest request) {
         var appointmentInWalk = service.createWalkIn(request);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(appointmentInWalk.id()).toUri();
+
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(appointmentInWalk.id())
+                .toUri();
+
         return ResponseEntity.created(uri).body(appointmentInWalk);
     }
 

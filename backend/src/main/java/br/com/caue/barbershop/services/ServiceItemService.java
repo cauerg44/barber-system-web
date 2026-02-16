@@ -2,7 +2,7 @@ package br.com.caue.barbershop.services;
 
 import br.com.caue.barbershop.dto.response.ServiceItemResponseDTO;
 import br.com.caue.barbershop.entity.ServiceItem;
-import br.com.caue.barbershop.mapper.ServiceItemMapper;
+import br.com.caue.barbershop.dto.mapper.ServiceItemMapper;
 import br.com.caue.barbershop.repository.ServiceItemRepository;
 import br.com.caue.barbershop.services.exceptions.ResourceNotFoundException;
 import org.springframework.data.domain.Sort;
@@ -45,5 +45,4 @@ public class ServiceItemService {
 
         return services;
     }
-
 }

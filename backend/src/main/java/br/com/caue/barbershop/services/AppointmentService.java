@@ -6,7 +6,7 @@ import br.com.caue.barbershop.dto.response.AppointmentResponseDTO;
 import br.com.caue.barbershop.entity.Appointment;
 import br.com.caue.barbershop.entity.enums.AppointmentStatus;
 import br.com.caue.barbershop.entity.enums.AppointmentType;
-import br.com.caue.barbershop.mapper.AppointmentMapper;
+import br.com.caue.barbershop.dto.mapper.AppointmentMapper;
 import br.com.caue.barbershop.repository.AppointmentRepository;
 import br.com.caue.barbershop.services.exceptions.ResourceNotFoundException;
 import org.springframework.data.domain.Sort;
@@ -89,7 +89,7 @@ public class AppointmentService {
     @Transactional
     public AppointmentResponseDTO start(Long id) {
 
-        Appointment appointment = findAppointment(id);
+        Appointment appointment = findAppointmentById(id);
         appointment.start();
 
         return AppointmentMapper.toDTO(appointment);
@@ -98,7 +98,7 @@ public class AppointmentService {
     @Transactional
     public AppointmentResponseDTO complete(Long id) {
 
-        Appointment appointment = findAppointment(id);
+        Appointment appointment = findAppointmentById(id);
         appointment.complete();
 
         return AppointmentMapper.toDTO(appointment);
@@ -107,13 +107,13 @@ public class AppointmentService {
     @Transactional
     public AppointmentResponseDTO cancel(Long id) {
 
-        Appointment appointment = findAppointment(id);
+        Appointment appointment = findAppointmentById(id);
         appointment.cancel();
 
         return AppointmentMapper.toDTO(appointment);
     }
 
-    private Appointment findAppointment(Long id) {
+    protected Appointment findAppointmentById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Appointment not found"));

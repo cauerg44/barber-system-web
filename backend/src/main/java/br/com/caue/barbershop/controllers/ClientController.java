@@ -38,8 +38,13 @@ public class ClientController {
     @PostMapping
     public ResponseEntity<ClientResponseDTO> saveClient(@RequestBody @Valid ClientRequestSaveDTO request) {
         var newClient = service.save(request);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(newClient.id()).toUri();
+
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(newClient.id())
+                .toUri();
+
         return ResponseEntity.created(uri).body(newClient);
     }
 

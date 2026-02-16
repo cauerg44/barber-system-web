@@ -4,7 +4,7 @@ import br.com.caue.barbershop.dto.request.ClientRequestSaveDTO;
 import br.com.caue.barbershop.dto.request.ClientRequestUpdateDTO;
 import br.com.caue.barbershop.dto.response.ClientResponseDTO;
 import br.com.caue.barbershop.entity.Client;
-import br.com.caue.barbershop.mapper.ClientMapper;
+import br.com.caue.barbershop.dto.mapper.ClientMapper;
 import br.com.caue.barbershop.repository.ClientRepository;
 import br.com.caue.barbershop.services.exceptions.DatabaseException;
 import br.com.caue.barbershop.services.exceptions.ResourceNotFoundException;

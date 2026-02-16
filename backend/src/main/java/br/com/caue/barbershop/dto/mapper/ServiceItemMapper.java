@@ -1,4 +1,4 @@
-package br.com.caue.barbershop.mapper;
+package br.com.caue.barbershop.dto.mapper;
 
 import br.com.caue.barbershop.dto.response.ServiceItemResponseDTO;
 import br.com.caue.barbershop.entity.ServiceItem;
