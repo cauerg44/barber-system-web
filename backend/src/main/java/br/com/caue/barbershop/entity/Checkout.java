@@ -6,6 +6,7 @@ import br.com.caue.barbershop.services.exceptions.BusinessException;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -33,6 +34,9 @@ public class Checkout {
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal total;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     protected Checkout() {
     }
@@ -64,6 +68,10 @@ public class Checkout {
 
     public BigDecimal getTotal() {
         return total;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     private void validateBusinessRules() {
